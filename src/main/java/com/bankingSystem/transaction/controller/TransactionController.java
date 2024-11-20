@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/transaction")
 public class TransactionController {
 
@@ -28,23 +30,33 @@ public class TransactionController {
                 .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(null)));
     }
 
-    @PostMapping("/withdraw")
+    @PostMapping("/withdrawal")
     public Mono<ResponseEntity<Transaction>> registerWithdraw(
             @RequestParam("accountId") Integer accountId,
             @RequestBody WithdrawalRequest request) {
         return transactionService.registerWithdrawal(accountId, request.getAmount())
                 .map(ResponseEntity::ok)
-                .onErrorResume(error -> Mono.just(ResponseEntity.badRequest().body(null)));
+                .onErrorResume(error -> {
+                    System.err.println("Error during withdrawal: " + error.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(null));
+                });
     }
 
-    @PostMapping("/transfer")
+    @PostMapping("/transferTo")
     public Mono<ResponseEntity<Transaction>> transferMoney(@RequestBody TransferRequest transferRequest) {
         return transactionService.registerTransfer(
                         transferRequest.getSourceAccountId(),
                         transferRequest.getDestinationAccountId(),
                         transferRequest.getAmount()
                 ).map(ResponseEntity::ok)
-                .onErrorReturn(ResponseEntity.badRequest().build());
+                .onErrorResume(error -> {
+                    System.err.println("Error during transfer: " + error.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(null));
+                });    }
+
+    @GetMapping("/history")
+    public Mono<List<Transaction>> getTransactionHistory() {
+        return transactionService.getTransactionHistory();
     }
 
 

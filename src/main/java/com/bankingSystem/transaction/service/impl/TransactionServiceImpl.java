@@ -1,10 +1,12 @@
 package com.bankingSystem.transaction.service.impl;
 
 import com.bankingSystem.transaction.model.Transaction;
+import com.bankingSystem.transaction.model.TransactionType;
 import com.bankingSystem.transaction.repository.TransactionRepository;
 import com.bankingSystem.transaction.service.MicroServiceClient;
 import com.bankingSystem.transaction.service.TransactionService;
 import com.bankingSystem.transaction.service.utils.TransactionValidationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -38,7 +40,7 @@ public class TransactionServiceImpl implements TransactionService {
                     return transactionValidationService.updateBalanceAndCreateTransaction(
                             accountId,
                             newBalance,
-                            "SAVING",
+                            TransactionType.SAVING,
                             amount,
                             accountDetail.getAccountNumber(),
                             null);
@@ -47,7 +49,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Mono<Transaction> registerWithdrawal(Integer accountId, BigDecimal amount) {
-            return transactionValidationService.validateAmount(amount)
+        return transactionValidationService.validateAmount(amount)
                     .then(microserviceClient.getAccountDetails(accountId)
                             .flatMap(accountDetail -> {
                                 BigDecimal currentBalance = accountDetail.getBalance();
@@ -63,15 +65,19 @@ public class TransactionServiceImpl implements TransactionService {
                                             return transactionValidationService.updateBalanceAndCreateTransaction(
                                                             accountId,
                                                             newBalance,
-                                                            "WITHDRAWAL",
+                                                            TransactionType.WITHDRAWAL,
                                                             amount,
                                                             accountDetail.getAccountNumber(),
                                                             null)
                                                     .doOnSuccess(savedTransaction -> System.out.println("Transaction registered successfully."));
                                         }));
                             })
-                            .switchIfEmpty(Mono.error(new IllegalArgumentException("The account does not exist."))));
+                            .switchIfEmpty(Mono.defer(() -> {
+                                System.out.println("Account with ID " + accountId + " does not exist.");
+                                return Mono.error(new IllegalArgumentException("The account does not exist."));
+                            }))
 
+                    );
     }
 
     @Override
@@ -93,14 +99,14 @@ public class TransactionServiceImpl implements TransactionService {
                                                     return transactionValidationService.updateBalanceAndCreateTransaction(
                                                                     sourceAccountId,
                                                                     newSourceBalance,
-                                                                    "TRANSFER",
+                                                                    TransactionType.TRANSFER,
                                                                     amount,
                                                                     sourceAccount.getAccountNumber(),
                                                                     destinationAccount.getAccountNumber())
                                                             .then(transactionValidationService.updateBalanceAndCreateTransaction(
                                                                     destinationAccountId,
                                                                     newDestinationBalance,
-                                                                    "TRANSFER",
+                                                                    TransactionType.TRANSFER,
                                                                     amount,
                                                                     sourceAccount.getAccountNumber(),
                                                                     destinationAccount.getAccountNumber()))
@@ -114,6 +120,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Mono<List<Transaction>> getTransactionHistory() {
-        return null;
+        return transactionRepository.findAll()
+                .collectList();
     }
 }

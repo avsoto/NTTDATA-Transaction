@@ -17,7 +17,7 @@ public class Transaction {
 
     @Id
     private String id;
-    private String type;
+    private TransactionType type;
     private BigDecimal amount;
     private LocalDateTime date;
     private String originAccount;
