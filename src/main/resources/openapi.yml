@@ -1,0 +1,140 @@
+openapi: 3.0.3
+info:
+  title: Banking System API
+  description: API for handling banking transactions.
+  contact:
+    name: Ana Soto
+    email: avsotomejia@gmail.com
+  version: 1.0.0
+servers:
+  - url: http://localhost:8082
+    description: Local server
+paths:
+  /transaction/deposit:
+    post:
+      summary: Register a deposit
+      operationId: deposit
+      parameters:
+        - name: accountId
+          in: query
+          description: ID of the destination account for the deposit
+          required: true
+          schema:
+            type: integer
+        - name: amount
+          in: query
+          description: Amount to deposit
+          required: true
+          schema:
+            type: number
+            format: float
+      responses:
+        '200':
+          description: Deposit successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionT'
+        '400':
+          description: Bad request
+  /transaction/withdraw:
+    post:
+      summary: Register a withdrawal
+      operationId: withdraw
+      parameters:
+        - name: accountId
+          in: query
+          description: ID of the account for withdrawal
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Withdrawal request information
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawalRequestT'
+      responses:
+        '200':
+          description: Withdrawal successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionT'
+        '400':
+          description: Bad request
+  /transaction/transfer:
+    post:
+      summary: Transfer money between accounts
+      operationId: transferMoney
+      requestBody:
+        description: Transfer information
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequestT'
+      responses:
+        '200':
+          description: Transfer successfully completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionT'
+        '400':
+          description: Bad request
+  /transaction/history:
+    get:
+      summary: Get transaction history
+      operationId: getTransactionHistory
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionT'
+components:
+  schemas:
+    TransactionT:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/TransactionTypeT'
+        amount:
+          type: number
+          format: float
+        date:
+          type: string
+          format: date-time
+        originAccount:
+          type: string
+        destinationAccount:
+          type: string
+    TransactionTypeT:
+      type: string
+      enum:
+        - DEPOSIT
+        - WITHDRAWAL
+        - TRANSFER
+    TransferRequestT:
+      type: object
+      properties:
+        sourceAccountId:
+          type: integer
+        destinationAccountId:
+          type: integer
+        amount:
+          type: number
+          format: float
+    WithdrawalRequestT:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: float

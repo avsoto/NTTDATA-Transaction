@@ -1,9 +1,8 @@
 package com.bankingSystem.transaction.service;
 
 import com.bankingSystem.transaction.model.BankAccount;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -30,6 +29,15 @@ public class MicroServiceClient {
         return webClient.get()
                 .uri(accountServiceUrl + "/{accountId}", accountId)
                 .retrieve()
+                .onStatus(
+                        status -> status.is4xxClientError(), // Expresión lambda que llama al método no estático
+                        clientResponse -> {
+                            // Si el servicio devuelve un código 404 (no encontrado), retornamos Mono.empty()
+                            if (clientResponse.statusCode() == HttpStatus.NOT_FOUND) {
+                                return Mono.empty();  // Esto hará que el flujo entre en switchIfEmpty()
+                            }
+                            return Mono.error(new RuntimeException("Account service error: " + clientResponse.statusCode()));
+                        })
                 .bodyToMono(BankAccount.class)
                 .doOnNext(account -> System.out.println("Account received: " + account))
                 .doOnError(e -> System.err.println("Error getting account: " + e.getMessage()));
