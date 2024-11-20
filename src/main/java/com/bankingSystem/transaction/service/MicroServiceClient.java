@@ -1,8 +1,6 @@
 package com.bankingSystem.transaction.service;
 
 import com.bankingSystem.transaction.model.BankAccount;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;

@@ -5,7 +5,6 @@ import com.bankingSystem.transaction.model.Transaction;
 import com.bankingSystem.transaction.repository.TransactionRepository;
 import com.bankingSystem.transaction.service.MicroServiceClient;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -48,7 +47,6 @@ public class TransactionValidationService {
                 .doOnSuccess(response -> System.out.println("Balance successfully updated"))
                 .doOnError(error -> System.out.println("Error updating balance:" + error.getMessage()))
                 .then(Mono.defer(() -> {
-                    // Crear la transacción
                     Transaction transaction = new Transaction();
                     transaction.setType(transactionType);
                     transaction.setAmount(amount);
@@ -56,7 +54,6 @@ public class TransactionValidationService {
                     transaction.setOriginAccount(originAccount);
                     transaction.setDestinationAccount(destinationAccount);
 
-                    // Guardar la transacción y devolverla
                     return createTransactionAndSave(transactionRepository, transaction);
                 }));
     }
