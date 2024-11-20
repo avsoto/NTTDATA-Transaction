@@ -1,0 +1,133 @@
+{
+	"info": {
+		"_postman_id": "e13fdbe3-575b-4530-a8fc-587db398d7c5",
+		"name": "nttdata-transaction",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11324583",
+		"_collection_link": "https://cloudy-moon-221323.postman.co/workspace/ISIL~bdfbc7d9-cecb-4292-9220-76561ea18ef3/collection/11324583-e13fdbe3-575b-4530-a8fc-587db398d7c5?action=share&source=collection_link&creator=11324583"
+	},
+	"item": [
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "request a withdraw",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"amount\": 20\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/transaction/withdrawal?accountId=20",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"transaction",
+						"withdrawal"
+					],
+					"query": [
+						{
+							"key": "accountId",
+							"value": "20"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "request a deposit",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/transaction/deposit?accountId=1&amount=100.50",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"transaction",
+						"deposit"
+					],
+					"query": [
+						{
+							"key": "accountId",
+							"value": "1"
+						},
+						{
+							"key": "amount",
+							"value": "100.50"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "request a transfer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"sourceAccountId\": 1,\r\n  \"destinationAccountId\": 2,\r\n  \"amount\": 10\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/transaction/transfer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"transaction",
+						"transfer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "request history of transactions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/transaction/history",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"transaction",
+						"history"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
