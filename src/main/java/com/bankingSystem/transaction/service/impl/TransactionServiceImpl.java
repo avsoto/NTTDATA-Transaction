@@ -4,6 +4,7 @@ import com.bankingSystem.transaction.model.Transaction;
 import com.bankingSystem.transaction.repository.TransactionRepository;
 import com.bankingSystem.transaction.service.MicroServiceClient;
 import com.bankingSystem.transaction.service.TransactionService;
+import com.bankingSystem.transaction.service.utils.TransactionValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -18,134 +19,109 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final MicroServiceClient microserviceClient;
+    private final TransactionValidationService transactionValidationService;
 
     @Autowired
-    public TransactionServiceImpl(TransactionRepository transactionRepository, MicroServiceClient microserviceClient) {
+    public TransactionServiceImpl(TransactionRepository transactionRepository, MicroServiceClient microserviceClient, TransactionValidationService transactionValidationService) {
         this.transactionRepository = transactionRepository;
         this.microserviceClient = microserviceClient;
+        this.transactionValidationService = transactionValidationService;
     }
 
     @Override
     public Mono<Transaction> registerDeposit(Integer accountId, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            return Mono.error(new IllegalArgumentException("The amount must be higher than 0."));
-        }
-
-        // Validate that the account exists in the Accounts microservice
-        return microserviceClient.getAccountDetails(accountId)
+        // Realiza la validación del monto primero
+        return transactionValidationService.validateAmount(amount)
+                .then(transactionValidationService.validateAccount(accountId))  // Luego valida la cuenta
                 .flatMap(accountDetail -> {
+                    // Si la validación fue exitosa, obtiene el saldo actual y calcula el nuevo saldo
                     BigDecimal currentBalance = accountDetail.getBalance();
-                    BigDecimal newBalance =  currentBalance.add(amount);
+                    BigDecimal newBalance = currentBalance.add(amount);
 
-                    return microserviceClient.updateBalance(accountId, newBalance)
-                            .doOnSuccess(response -> System.out.println("Balance successfully updated in MySQL."))
-                            .doOnError(error -> System.out.println("Error updating balance:" + error.getMessage()))
-                            .then(Mono.defer(() -> {
-                                // Create and save the transaction if the update was successful
-                                Transaction transaction = new Transaction();
-                                transaction.setType("SAVING");
-                                transaction.setAmount(amount);
-                                transaction.setDate(LocalDateTime.now());
-                                transaction.setOriginAccount(accountDetail.getAccountNumber());
-                                transaction.setDestinationAccount(null);
-
-                                // Save transaction to MongoDB
-                                return transactionRepository.save(transaction)
-                                        .doOnSuccess(savedTransaction -> {
-                                            System.out.println("Save transaction: " + savedTransaction);
-                                        })
-                                        .doOnError(e -> {
-                                            System.err.println("Error saving transaction: " + e.getMessage());
-                                        });                            }));
-                })
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("The destination account does not exist")));
+                    // Llama a updateBalanceAndCreateTransaction después de la validación y el cálculo del nuevo balance
+                    return transactionValidationService.updateBalanceAndCreateTransaction(
+                            accountId,
+                            newBalance,
+                            "SAVING",
+                            amount,
+                            accountDetail.getAccountNumber(),
+                            null);
+                });
     }
 
     @Override
     public Mono<Transaction> registerWithdrawal(Integer accountId, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            return Mono.error(new IllegalArgumentException("The amount must be higher than 0."));
-        }
+            // Validar monto (usando TransactionValidationService)
+            return transactionValidationService.validateAmount(amount)
+                    .then(microserviceClient.getAccountDetails(accountId)
+                            .flatMap(accountDetail -> {
+                                BigDecimal currentBalance = accountDetail.getBalance();
 
-        // Validate that the account exists in the Accounts microservice
-        return microserviceClient.getAccountDetails(accountId)
-                .flatMap(accountDetail -> {
-                    BigDecimal currentBalance = accountDetail.getBalance();
+                                // Validar si el saldo es suficiente
+                                return transactionValidationService.validateAmount(amount)
+                                        .then(Mono.defer(() -> {
+                                            if (currentBalance.compareTo(amount) < 0) {
+                                                return Mono.error(new IllegalArgumentException("Insufficient balance."));
+                                            }
 
-                    // Check if the balance is sufficient for withdrawal
-                    if (currentBalance.compareTo(amount) < 0) {
-                        return Mono.error(new IllegalArgumentException("Insufficient balance."));
-                    }
+                                            // Calcular el nuevo saldo
+                                            BigDecimal newBalance = currentBalance.subtract(amount);
 
-                    // Calculate the new balance after withdrawal
-                    BigDecimal newBalance = currentBalance.subtract(amount);
-
-                    return microserviceClient.updateBalance(accountId, newBalance)
-                            .doOnSuccess(response -> System.out.println("Balance successfully updated in MySQL."))
-                            .doOnError(error -> System.out.println("Error updating balance: " + error.getMessage()))
-                            .then(Mono.defer(() -> {
-                                // Create and save the transaction if the update was successful
-                                Transaction transaction = new Transaction();
-                                transaction.setType("WITHDRAWAL");
-                                transaction.setAmount(amount);
-                                transaction.setDate(LocalDateTime.now());
-                                transaction.setOriginAccount(accountDetail.getAccountNumber());
-                                transaction.setDestinationAccount(null); // Can be null if the withdrawal does not have a specific destination
-
-                                // Save the transaction to MongoDB
-                                return transactionRepository.save(transaction)
-                                        .doOnSuccess(savedTransaction -> {
-                                            System.out.println("Save transaction: " + savedTransaction);
-                                        })
-                                        .doOnError(e -> {
-                                            System.err.println("Error saving transaction: " + e.getMessage());
-                                        });
-                            }));
-                })
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("The account does not exist.")));
+                                            // Actualizar el saldo y crear la transacción
+                                            return transactionValidationService.updateBalanceAndCreateTransaction(
+                                                            accountId,
+                                                            newBalance,
+                                                            "WITHDRAWAL",
+                                                            amount,
+                                                            accountDetail.getAccountNumber(),
+                                                            null) // Sin cuenta de destino para retiro
+                                                    .doOnSuccess(savedTransaction -> System.out.println("Transaction registered successfully."));
+                                        }));
+                            })
+                            .switchIfEmpty(Mono.error(new IllegalArgumentException("The account does not exist."))));
 
     }
 
     @Override
     public Mono<Transaction> registerTransfer(Integer sourceAccountId, Integer destinationAccountId, BigDecimal amount) {
-        // Validate that the amount is greater than zero
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            return Mono.error(new IllegalArgumentException("The amount must be greater than 0"));
-        }
+        // Validar monto (usando TransactionValidationService)
+        return transactionValidationService.validateAmount(amount)
+                .then(microserviceClient.getAccountDetails(sourceAccountId)
+                        .flatMap(sourceAccount -> {
+                            // Validar la existencia de la cuenta de destino
+                            return microserviceClient.getAccountDetails(destinationAccountId)
+                                    .flatMap(destinationAccount -> {
+                                        // Verificar si hay suficiente saldo en la cuenta de origen
+                                        return transactionValidationService.validateAmount(amount)
+                                                .then(Mono.defer(() -> {
+                                                    if (sourceAccount.getBalance().compareTo(amount) < 0) {
+                                                        return Mono.error(new IllegalArgumentException("Insufficient balance in the source account"));
+                                                    }
 
-        // Get the source account
-        return microserviceClient.getAccountDetails(sourceAccountId)
-                .flatMap(sourceAccount -> {
-                    // Get the target account
-                    return microserviceClient.getAccountDetails(destinationAccountId)
-                            .flatMap(destinationAccount -> {
-                                // Check if the source account has sufficient balance
-                                if (sourceAccount.getBalance().compareTo(amount) < 0) {
-                                    return Mono.error(new IllegalArgumentException("Insufficient balance in the source account"));
-                                }
+                                                    // Calcular los nuevos saldos
+                                                    BigDecimal newSourceBalance = sourceAccount.getBalance().subtract(amount);
+                                                    BigDecimal newDestinationBalance = destinationAccount.getBalance().add(amount);
 
-                                // Subtract the amount from the source account
-                                BigDecimal newSourceBalance = sourceAccount.getBalance().subtract(amount);
-                                // Add the amount to the destination account
-                                BigDecimal newDestinationBalance = destinationAccount.getBalance().add(amount);
-
-                                // Update accounts
-                                return microserviceClient.updateBalance(sourceAccountId, newSourceBalance)
-                                        .then(microserviceClient.updateBalance(destinationAccountId, newDestinationBalance))
-                                        .then(Mono.defer(() -> {
-                                            // Create and save the transaction
-                                            Transaction transaction = new Transaction();
-                                            transaction.setType("TRANSFER");
-                                            transaction.setAmount(amount);
-                                            transaction.setDate(LocalDateTime.now());
-                                            transaction.setOriginAccount(sourceAccount.getAccountNumber());
-                                            transaction.setDestinationAccount(destinationAccount.getAccountNumber());
-
-                                            return transactionRepository.save(transaction);
-                                        }));
-                            });
-                })
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("One or both accounts do not exist")));
+                                                    // Actualizar los saldos de ambas cuentas
+                                                    return transactionValidationService.updateBalanceAndCreateTransaction(
+                                                                    sourceAccountId,
+                                                                    newSourceBalance,
+                                                                    "TRANSFER",
+                                                                    amount,
+                                                                    sourceAccount.getAccountNumber(),
+                                                                    destinationAccount.getAccountNumber())
+                                                            .then(transactionValidationService.updateBalanceAndCreateTransaction(
+                                                                    destinationAccountId,
+                                                                    newDestinationBalance,
+                                                                    "TRANSFER",
+                                                                    amount,
+                                                                    sourceAccount.getAccountNumber(),
+                                                                    destinationAccount.getAccountNumber()))
+                                                            .doOnSuccess(savedTransaction -> System.out.println("Transfer transaction registered successfully."));
+                                                }));
+                                    });
+                        })
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException("One or both accounts do not exist"))));
 
     }
 
