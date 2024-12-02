@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WithdrawalRequest {
+public class DepositRequest {
     @NotNull(message = "Account ID cannot be null")
     private Integer accountId;
 
@@ -19,4 +19,3 @@ public class WithdrawalRequest {
     @Positive(message = "Amount must be positive")
     private BigDecimal amount;
 }
-

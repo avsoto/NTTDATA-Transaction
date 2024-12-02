@@ -24,6 +24,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Mono<Transaction> registerDeposit(Integer accountId, BigDecimal amount) {
+        //A DepositProcessor (which implements TransactionProcessor) is instantiated and returned.
         TransactionProcessor processor = transactionProcessorFactory.getProcessor(TransactionType.SAVING);
         return processor.process(accountId, amount);
     }

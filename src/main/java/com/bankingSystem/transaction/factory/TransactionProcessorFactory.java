@@ -8,22 +8,16 @@ import com.bankingSystem.transaction.processor.WithdrawalProcessor;
 import com.bankingSystem.transaction.repository.TransactionRepository;
 import com.bankingSystem.transaction.service.AccountServiceClient;
 import com.bankingSystem.transaction.service.util.TransactionUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class TransactionProcessorFactory {
 
     private final TransactionRepository transactionRepository;
     private final TransactionUtil validationService;
     private final AccountServiceClient microServiceClient;
-
-    public TransactionProcessorFactory(TransactionRepository transactionRepository,
-                                       TransactionUtil validationService,
-                                       AccountServiceClient microServiceClient) {
-        this.transactionRepository = transactionRepository;
-        this.validationService = validationService;
-        this.microServiceClient = microServiceClient;
-    }
 
     public TransactionProcessor getProcessor(TransactionType type) {
         return switch (type) {

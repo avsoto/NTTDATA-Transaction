@@ -19,11 +19,11 @@ public class TransferProcessor extends TransactionProcessor {
 
     @Override
     public Mono<Transaction> process(Integer accountId, BigDecimal amount) {
-        // Este método es solo un placeholder y no se usa directamente en Transfer
+    // This method is just a placeholder and is not used directly in Transfer
         return Mono.error(new UnsupportedOperationException("Use processTransfer for transfers"));
     }
 
-    // Método específico para procesar la transferencia
+    //Specific method to process the transfer
     public Mono<Transaction> processTransfer(Integer sourceAccountId, Integer destinationAccountId, BigDecimal amount) {
         return validationService.validateAmount(amount)
                 .then(microServiceClient.getAccountDetails(sourceAccountId))

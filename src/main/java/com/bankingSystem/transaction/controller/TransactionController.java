@@ -1,8 +1,10 @@
 package com.bankingSystem.transaction.controller;
+import com.bankingSystem.transaction.dto.DepositRequest;
 import com.bankingSystem.transaction.dto.TransferRequest;
 import com.bankingSystem.transaction.dto.WithdrawalRequest;
 import com.bankingSystem.transaction.model.Transaction;
 import com.bankingSystem.transaction.service.TransactionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,30 +24,27 @@ public class TransactionController {
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
 
-    @Autowired
-    private TransactionService transactionService;
+    private final TransactionService transactionService;
 
     @PostMapping("/deposit")
     public Mono<ResponseEntity<Transaction>> registerDeposit(
-            @RequestParam Integer accountId,
-            @RequestParam BigDecimal amount) {
-        logger.info("Starting deposit for account: {}", accountId);
-        return transactionService.registerDeposit(accountId, amount)
+            @RequestBody @Valid DepositRequest request) {
+        logger.info("Starting deposit for account: {}", request.getAccountId());
+        return transactionService.registerDeposit(request.getAccountId(), request.getAmount())
                 .map(ResponseEntity::ok);
     }
 
     @PostMapping("/withdrawal")
     public Mono<ResponseEntity<Transaction>> registerWithdraw(
-            @RequestParam Integer accountId,
-            @RequestBody WithdrawalRequest request) {
-        logger.info("Starting withdrawal for account: {}", accountId);
-        return transactionService.registerWithdrawal(accountId, request.getAmount())
+            @RequestBody @Valid WithdrawalRequest request) {
+        logger.info("Starting withdrawal for account: {}", request.getAccountId());
+        return transactionService.registerWithdrawal(request.getAccountId(), request.getAmount())
                 .map(ResponseEntity::ok);
     }
 
 
     @PostMapping("/transferTo")
-    public Mono<ResponseEntity<Transaction>> transferMoney(@RequestBody TransferRequest transferRequest) {
+    public Mono<ResponseEntity<Transaction>> transferMoney(@RequestBody @Valid TransferRequest transferRequest) {
         logger.info("Starting transfer from source account: {} to destination account: {}", transferRequest.getSourceAccountId(), transferRequest.getDestinationAccountId());
         return transactionService.registerTransfer(
                         transferRequest.getSourceAccountId(),
