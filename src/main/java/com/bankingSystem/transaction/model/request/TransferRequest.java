@@ -1,4 +1,4 @@
-package com.bankingSystem.transaction.dto;
+package com.bankingSystem.transaction.model.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -11,9 +11,12 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DepositRequest {
-    @NotNull(message = "Account ID cannot be null")
-    private Integer accountId;
+public class TransferRequest {
+    @NotNull(message = "Source Account Id cannot be null")
+    private Integer sourceAccountId;
+
+    @NotNull(message = "Destination Account Id cannot be null")
+    private Integer destinationAccountId;
 
     @NotNull(message = "Amount cannot be null")
     @Positive(message = "Amount must be positive")

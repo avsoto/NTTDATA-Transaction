@@ -1,11 +1,11 @@
-package com.bankingSystem.transaction.model;
+package com.bankingSystem.transaction.model.dto;
 
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
-public class BankAccount {
+public class BankAccountDTO {
     private Integer id;
     private String accountNumber;
     private BigDecimal balance;

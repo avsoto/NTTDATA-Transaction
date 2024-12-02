@@ -1,5 +1,6 @@
 package com.bankingSystem.transaction.model;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,13 +14,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "banking")
-public class Transaction {
-
+public class Transaction{
     @Id
     private String id;
     private TransactionType type;
+
+    @NotNull
     private BigDecimal amount;
+
     private LocalDateTime date;
+
+    @NotNull
     private String originAccount;
+
+    @NotNull
     private String destinationAccount;
 }

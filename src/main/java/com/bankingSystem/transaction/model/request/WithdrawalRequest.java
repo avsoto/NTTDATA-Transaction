@@ -1,4 +1,4 @@
-package com.bankingSystem.transaction.dto;
+package com.bankingSystem.transaction.model.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

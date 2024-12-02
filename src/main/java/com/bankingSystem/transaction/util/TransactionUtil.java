@@ -1,11 +1,15 @@
-package com.bankingSystem.transaction.service.util;
+package com.bankingSystem.transaction.util;
 
+import com.bankingSystem.transaction.model.Transaction;
+import com.bankingSystem.transaction.repository.TransactionRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
 @Component
+@AllArgsConstructor
 public class TransactionUtil {
 
     public Mono<Void> validateAmount(BigDecimal amount) {

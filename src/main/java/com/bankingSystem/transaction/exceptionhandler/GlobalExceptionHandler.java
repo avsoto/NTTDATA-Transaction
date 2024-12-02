@@ -1,4 +1,4 @@
-package com.bankingSystem.transaction.exception;
+package com.bankingSystem.transaction.exceptionhandler;
 
 import com.mongodb.MongoException;
 import org.slf4j.Logger;
@@ -106,4 +106,12 @@ public class GlobalExceptionHandler {
         return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Transaction error: " + e.getMessage()));
     }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public Mono<ResponseEntity<String>> handleInsufficientBalanceException(InsufficientBalanceException e) {
+        logger.error("Insufficient balance: ", e);
+        return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage()));
+    }
+
 }

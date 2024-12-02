@@ -1,4 +1,4 @@
-package com.bankingSystem.transaction.exception;
+package com.bankingSystem.transaction.exceptionhandler;
 
 public class AccountNotFoundException extends RuntimeException {
 
