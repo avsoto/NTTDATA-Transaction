@@ -33,7 +33,7 @@ public class TransferProcessor extends TransactionProcessor {
                         getAccountDetails(destinationAccountId)
                                 .flatMap(destinationAccount ->
                                         verifySufficientBalance(sourceAccount, amount)
-                                                .then(Mono.defer(() -> { // Mono.defer se asegura de que la operación se ejecute después
+                                                .then(Mono.defer(() -> {
                                                     BigDecimal newSourceBalance = calculateNewBalance(sourceAccount.getBalance(), amount, false);
                                                     BigDecimal newDestinationBalance = calculateNewBalance(destinationAccount.getBalance(), amount, true);
                                                     return updateBalancesAndProcessTransfer(sourceAccountId, destinationAccountId,
@@ -55,7 +55,7 @@ public class TransferProcessor extends TransactionProcessor {
         if (sourceAccount.getBalance().compareTo(amount) < 0) {
             return Mono.error(new InsufficientBalanceException("Insufficient balance in source account"));
         }
-        return Mono.empty(); // Si el balance es suficiente, no ocurre nada
+        return Mono.empty();
     }
 
     private BigDecimal calculateNewBalance(BigDecimal currentBalance, BigDecimal amount, boolean isDeposit) {
@@ -65,9 +65,9 @@ public class TransferProcessor extends TransactionProcessor {
     private Mono<Transaction> updateBalancesAndProcessTransfer(Integer sourceAccountId, Integer destinationAccountId,
                                                                BigDecimal newSourceBalance, BigDecimal newDestinationBalance,
                                                                BigDecimal amount, String originAccount, String destinationAccount) {
-        return accountServiceClient.adjustBankAccountBalance(sourceAccountId, newSourceBalance)  // Actualiza el balance de la cuenta origen
-                .then(accountServiceClient.adjustBankAccountBalance(destinationAccountId, newDestinationBalance))  // Actualiza el balance de la cuenta destino
-                .then(createTransaction(sourceAccountId, newSourceBalance, amount, TransactionType.TRANSFER, originAccount, destinationAccount))  // Crea y guarda la transacción
+        return accountServiceClient.adjustBankAccountBalance(sourceAccountId, newSourceBalance)
+                .then(accountServiceClient.adjustBankAccountBalance(destinationAccountId, newDestinationBalance))
+                .then(createTransaction(sourceAccountId, newSourceBalance, amount, TransactionType.TRANSFER, originAccount, destinationAccount))
                 .doOnSuccess(savedTransaction -> System.out.println("Transfer transaction saved successfully"))
                 .doOnError(e -> System.err.println("Error saving transfer transaction: " + e.getMessage()));
     }
