@@ -20,14 +20,15 @@ import java.util.List;
 @RequestMapping("/transaction")
 public class TransactionController {
 
-    private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
+    private static final Logger LOGGER_FACTORY = LoggerFactory.getLogger(TransactionController.class);
+
 
     private final TransactionService transactionService;
 
     @PostMapping("/deposit")
     public Mono<ResponseEntity<Transaction>> processDeposit(
             @RequestBody @Valid DepositRequest request) {
-        logger.info("Starting deposit for account: {}", request.getAccountId());
+        LOGGER_FACTORY.info("Starting deposit for account: {}", request.getAccountId());
         return transactionService.registerDeposit(request.getAccountId(), request.getAmount())
                 .map(ResponseEntity::ok);
     }
@@ -35,7 +36,7 @@ public class TransactionController {
     @PostMapping("/withdrawal")
     public Mono<ResponseEntity<Transaction>> processWithdrawal(
             @RequestBody @Valid WithdrawalRequest request) {
-        logger.info("Starting withdrawal for account: {}", request.getAccountId());
+        LOGGER_FACTORY.info("Starting withdrawal for account: {}", request.getAccountId());
         return transactionService.registerWithdrawal(request.getAccountId(), request.getAmount())
                 .map(ResponseEntity::ok);
     }
@@ -43,7 +44,7 @@ public class TransactionController {
 
     @PostMapping("/transferTo")
     public Mono<ResponseEntity<Transaction>> processTransfer(@RequestBody @Valid TransferRequest transferRequest) {
-        logger.info("Starting transfer from source account: {} to destination account: {}", transferRequest.getSourceAccountId(), transferRequest.getDestinationAccountId());
+        LOGGER_FACTORY.info("Starting transfer from source account: {} to destination account: {}", transferRequest.getSourceAccountId(), transferRequest.getDestinationAccountId());
         return transactionService.registerTransfer(
                         transferRequest.getSourceAccountId(),
                         transferRequest.getDestinationAccountId(),
