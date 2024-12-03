@@ -8,21 +8,13 @@
 	},
 	"item": [
 		{
-			"name": "New Request",
-			"request": {
-				"method": "GET",
-				"header": []
-			},
-			"response": []
-		},
-		{
 			"name": "request a withdraw",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"amount\": 20\r\n}",
+					"raw": "{\r\n  \"accountId\": 1,\r\n  \"amount\": 50.00\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -30,7 +22,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/transaction/withdrawal?accountId=20",
+					"raw": "http://localhost:8082/transaction/withdrawal",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -39,12 +31,6 @@
 					"path": [
 						"transaction",
 						"withdrawal"
-					],
-					"query": [
-						{
-							"key": "accountId",
-							"value": "20"
-						}
 					]
 				}
 			},
@@ -55,8 +41,17 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"accountId\": 1,\r\n  \"amount\": 2.75\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "http://localhost:8082/transaction/deposit?accountId=1&amount=100.50",
+					"raw": "http://localhost:8082/transaction/deposit",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -65,16 +60,6 @@
 					"path": [
 						"transaction",
 						"deposit"
-					],
-					"query": [
-						{
-							"key": "accountId",
-							"value": "1"
-						},
-						{
-							"key": "amount",
-							"value": "100.50"
-						}
 					]
 				}
 			},
@@ -87,7 +72,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"sourceAccountId\": 1,\r\n  \"destinationAccountId\": 2,\r\n  \"amount\": 10\r\n}",
+					"raw": "{\r\n  \"sourceAccountId\": 1,\r\n  \"destinationAccountId\": 2,\r\n  \"amount\": 3.35\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -95,7 +80,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/transaction/transfer",
+					"raw": "http://localhost:8082/transaction/transferTo",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -103,7 +88,7 @@
 					"port": "8082",
 					"path": [
 						"transaction",
-						"transfer"
+						"transferTo"
 					]
 				}
 			},
