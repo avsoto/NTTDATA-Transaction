@@ -17,12 +17,20 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.ConstraintViolationException;
 
+/**
+ * Global exception handler for managing exceptions throughout the application.
+ * This class provides centralized exception handling using the {@link ControllerAdvice} annotation.
+ * It captures various exceptions and maps them to appropriate HTTP responses.
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // Manejo de excepciones generales (por ejemplo, errores no esperados)
+    /**
+     * Handles general exceptions (e.g., unexpected errors).
+     * @return a {@link Mono} emitting a {@link ResponseEntity} with an internal server error status
+     */
     @ExceptionHandler(Exception.class)
     public Mono<ResponseEntity<String>> handleGeneralException(Exception e) {
         logger.error("Unexpected error occurred: ", e);
@@ -30,14 +38,20 @@ public class GlobalExceptionHandler {
                 .body("An unexpected error occurred. Please try again later."));
     }
 
-    // Manejo de errores de validación (por ejemplo, parámetros inválidos)
+    /**
+     * Handles {@link IllegalArgumentException}, typically caused by invalid input parameters.
+     * @return a {@link Mono} emitting a {@link ResponseEntity} with a bad request status
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public Mono<ResponseEntity<String>> handleIllegalArgumentException(IllegalArgumentException e) {
         logger.error("Invalid input: ", e);
         return Mono.just(ResponseEntity.badRequest().body("Invalid input: " + e.getMessage()));
     }
 
-    // Manejo de excepciones de validación de Bean (errores de validación en el cuerpo de la solicitud)
+    /**
+     * Handles {@link BindException} for validation errors in request bodies.
+     * @return a {@link Mono} emitting a {@link ResponseEntity} with a bad request status
+     */
     @ExceptionHandler(BindException.class)
     public Mono<ResponseEntity<String>> handleBindException(BindException e) {
         String errorMessage = e.getAllErrors().stream()
@@ -48,7 +62,10 @@ public class GlobalExceptionHandler {
         return Mono.just(ResponseEntity.badRequest().body(errorMessage));
     }
 
-    // Manejo de excepciones de validación de JSR-303 (por ejemplo, anotaciones @NotNull)
+    /**
+     * Handles {@link ConstraintViolationException} for JSR-303 validation errors.
+     * @return a {@link Mono} emitting a {@link ResponseEntity} with a bad request status
+     */
     @ExceptionHandler(ConstraintViolationException.class)
     public Mono<ResponseEntity<String>> handleConstraintViolationException(ConstraintViolationException e) {
         String errorMessage = e.getConstraintViolations().stream()
@@ -59,7 +76,10 @@ public class GlobalExceptionHandler {
         return Mono.just(ResponseEntity.badRequest().body(errorMessage));
     }
 
-    // Manejo de errores en servicios externos (por ejemplo, errores de WebClient)
+    /**
+     * Handles {@link WebClientResponseException} for errors from external services.
+     * @return a {@link Mono} emitting a {@link ResponseEntity} with the status from the external service
+     */
     @ExceptionHandler(WebClientResponseException.class)
     public Mono<ResponseEntity<String>> handleWebClientResponseException(WebClientResponseException e) {
         logger.error("External service error: ", e);
@@ -67,7 +87,10 @@ public class GlobalExceptionHandler {
                 .body("External service error: " + e.getMessage()));
     }
 
-    // Manejo de excepciones específicas de la base de datos (por ejemplo, errores de MongoDB)
+    /**
+     * Handles {@link MongoException} for database-related errors.
+     * @return a {@link Mono} emitting a {@link ResponseEntity} with an internal server error status
+     */
     @ExceptionHandler(MongoException.class)
     public Mono<ResponseEntity<String>> handleMongoException(MongoException e) {
         logger.error("Database error: ", e);
@@ -75,7 +98,10 @@ public class GlobalExceptionHandler {
                 .body("Database error: " + e.getMessage()));
     }
 
-    // Manejo de errores HTTP 4xx (errores del cliente)
+    /**
+     * Handles {@link HttpClientErrorException} for 4xx HTTP errors.
+     * @return a {@link Mono} emitting a {@link ResponseEntity} with the client error status
+     */
     @ExceptionHandler(HttpClientErrorException.class)
     public Mono<ResponseEntity<String>> handleHttpClientErrorException(HttpClientErrorException e) {
         logger.error("HTTP client error: ", e);
@@ -83,7 +109,10 @@ public class GlobalExceptionHandler {
                 .body("HTTP client error: " + e.getMessage()));
     }
 
-    // Manejo de errores HTTP 5xx (errores del servidor)
+    /**
+     * Handles {@link HttpServerErrorException} for 5xx HTTP errors.
+     * @return a {@link Mono} emitting a {@link ResponseEntity} with an internal server error status
+     */
     @ExceptionHandler(HttpServerErrorException.class)
     public Mono<ResponseEntity<String>> handleHttpServerErrorException(HttpServerErrorException e) {
         logger.error("HTTP server error: ", e);
@@ -91,7 +120,10 @@ public class GlobalExceptionHandler {
                 .body("HTTP server error: " + e.getMessage()));
     }
 
-    // Manejo de errores de entidad no encontrada (por ejemplo, cuenta no encontrada)
+    /**
+     * Handles {@link AccountNotFoundException} for account-related errors.
+     * @return a {@link Mono} emitting a {@link ResponseEntity} with a not found status
+     */
     @ExceptionHandler(AccountNotFoundException.class)
     public Mono<ResponseEntity<String>> handleAccountNotFoundException(AccountNotFoundException e) {
         logger.error("Account not found: ", e);
@@ -99,19 +131,15 @@ public class GlobalExceptionHandler {
                 .body("Account not found: " + e.getMessage()));
     }
 
-    // Manejo de errores de transacción (por ejemplo, saldo insuficiente)
+    /**
+     * Handles {@link TransactionException} for transaction-related errors.
+     * @return a {@link Mono} emitting a {@link ResponseEntity} with a bad request status
+     */
     @ExceptionHandler(TransactionException.class)
     public Mono<ResponseEntity<String>> handleTransactionException(TransactionException e) {
         logger.error("Transaction error: ", e);
         return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Transaction error: " + e.getMessage()));
-    }
-
-    @ExceptionHandler(InsufficientBalanceException.class)
-    public Mono<ResponseEntity<String>> handleInsufficientBalanceException(InsufficientBalanceException e) {
-        logger.error("Insufficient balance: ", e);
-        return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(e.getMessage()));
     }
 
 }

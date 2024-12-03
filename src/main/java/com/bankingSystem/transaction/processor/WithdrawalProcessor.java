@@ -9,14 +9,33 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
+/**
+ * Processor responsible for handling and processing withdrawal transactions.
+ * This class provides the logic for withdrawing funds from an account. It validates the withdrawal amount,
+ * checks if the account has sufficient balance, calculates the new balance, updates the account balance,
+ * and creates a transaction record in the repository.
+ */
 public class WithdrawalProcessor extends TransactionProcessor {
 
+    /**
+     * Constructor for the WithdrawalProcessor.
+     * @param transactionRepository The transaction repository used to save transaction records.
+     * @param transactionUtil Utility class for validating amounts and other transaction-related operations.
+     * @param accountServiceClient Client for interacting with the account service to fetch and adjust bank account details.
+     */
     public WithdrawalProcessor(TransactionRepository transactionRepository,
                                TransactionUtil transactionUtil,
                                AccountServiceClient accountServiceClient) {
         super(transactionUtil, accountServiceClient, transactionRepository);
     }
 
+    /**
+     * Processes a withdrawal transaction.
+     * This method validates the withdrawal amount, retrieves the account details, checks if the account has sufficient
+     * balance to complete the withdrawal, calculates the new balance, and then updates the account balance. Finally,
+     * a transaction record is created and saved.
+     * @return A {@link Mono} containing the saved transaction, or an error if any step fails.
+     */
     @Override
     public Mono<Transaction> processTransaction(Integer accountId, BigDecimal amount) {
         return transactionUtil.validateAmount(amount)

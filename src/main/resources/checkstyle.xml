@@ -44,5 +44,6 @@
         <module name="TypeName"/>
 
         <!-- Java Docs -->
+        <module name="JavadocType"/>
     </module>
 </module>

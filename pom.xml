@@ -160,6 +160,12 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>mockwebserver</artifactId>
+			<version>4.10.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -221,6 +227,12 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<excludes>
+						<!-- Excluir clases dentro de un paquete específico -->
+						<exclude>**/com/bankingSystem/transaction/exceptionhandler/**/*</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
 
 			<!-- Plugin Checkstyle-->

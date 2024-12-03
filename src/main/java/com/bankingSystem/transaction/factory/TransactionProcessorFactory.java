@@ -11,6 +11,11 @@ import com.bankingSystem.transaction.util.TransactionUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * Factory class for creating instances of {@link TransactionProcessor} based on the transaction type.
+ * This factory decouples the creation of transaction processors, providing a centralized way
+ * to instantiate the appropriate processor for handling different transaction types.
+ */
 @Component
 @AllArgsConstructor
 public class TransactionProcessorFactory {
@@ -19,6 +24,11 @@ public class TransactionProcessorFactory {
     private final TransactionUtil transactionUtil;
     private final AccountServiceClient accountServiceClient;
 
+    /**
+     * Builds a {@link TransactionProcessor} for the specified {@link TransactionType}.
+     * @return an instance of the corresponding {@link TransactionProcessor}
+     * @throws IllegalArgumentException if the transaction type is not supported
+     */
     public TransactionProcessor buildTransactionProcessor(TransactionType type) {
         return switch (type) {
             case SAVING -> new DepositProcessor(transactionRepository, transactionUtil, accountServiceClient);

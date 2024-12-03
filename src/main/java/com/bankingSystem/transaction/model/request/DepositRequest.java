@@ -8,10 +8,15 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+/**
+ * Request object representing the details of a deposit operation.
+ * This class is used to capture and validate input data for deposit transactions.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class DepositRequest {
+
     @NotNull(message = "Account ID cannot be null")
     private Integer accountId;
 

@@ -8,10 +8,16 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+
+/**
+ * Request object representing the details of a transfer operation between accounts.
+ * This class is used to capture and validate input data for transfer transactions.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransferRequest {
+
     @NotNull(message = "Source Account Id cannot be null")
     private Integer sourceAccountId;
 

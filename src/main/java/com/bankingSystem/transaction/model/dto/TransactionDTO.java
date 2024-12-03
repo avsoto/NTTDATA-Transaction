@@ -6,9 +6,14 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Data Transfer Object (DTO) representing a transaction.
+ * This class is used to transfer transaction details between different layers of the application.
+ */
 @Data
 @AllArgsConstructor
 public class TransactionDTO {
+
     private String id;
     private String type;
     private BigDecimal amount;
