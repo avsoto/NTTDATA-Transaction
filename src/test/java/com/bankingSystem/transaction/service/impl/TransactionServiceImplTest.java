@@ -7,7 +7,6 @@ import com.bankingSystem.transaction.processor.TransactionProcessor;
 import com.bankingSystem.transaction.processor.TransferProcessor;
 import com.bankingSystem.transaction.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -19,7 +18,6 @@ import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class TransactionServiceImplTest {
@@ -51,7 +49,9 @@ class TransactionServiceImplTest {
     }
 
     @Test
-    @DisplayName("registerDeposit_ValidRequest_ReturnsTransaction")
+    /*
+    * Verifies that a valid deposit request returns the expected transaction after processing.
+    * */
     void registerDeposit_ValidRequest_ReturnsTransaction() {
         // Arrange
         when(transactionProcessorFactory.buildTransactionProcessor(TransactionType.SAVING))
@@ -64,8 +64,8 @@ class TransactionServiceImplTest {
 
         // Assert
         StepVerifier.create(response)
-                .expectNext(transaction) // Verifica que el valor emitido sea el esperado
-                .expectComplete() // Verifica que el Mono complete correctamente
+                .expectNext(transaction)
+                .expectComplete()
                 .verify();
 
         verify(transactionProcessorFactory, times(1)).buildTransactionProcessor(TransactionType.SAVING);
@@ -73,7 +73,9 @@ class TransactionServiceImplTest {
     }
 
     @Test
-    @DisplayName("registerWithdrawal_ValidRequest_ReturnsTransaction")
+    /*
+    *   Verifies that a valid withdrawal request returns the expected transaction after processing.
+    * */
     void registerWithdrawal_ValidRequest_ReturnsTransaction() {
         // Arrange
         when(transactionProcessorFactory.buildTransactionProcessor(TransactionType.WITHDRAWAL))
@@ -86,8 +88,8 @@ class TransactionServiceImplTest {
 
         // Assert
         StepVerifier.create(response)
-                .expectNext(transaction) // Verifica que el valor emitido sea el esperado
-                .expectComplete() // Verifica que el Mono complete correctamente
+                .expectNext(transaction)
+                .expectComplete()
                 .verify();
 
         verify(transactionProcessorFactory, times(1)).buildTransactionProcessor(TransactionType.WITHDRAWAL);
@@ -95,7 +97,9 @@ class TransactionServiceImplTest {
     }
 
     @Test
-    @DisplayName("registerTransfer_ValidRequest_ReturnsTransaction")
+    /*
+    *   Verifies that a valid transfer request returns the expected transaction after processing.
+    * */
     void registerTransfer_ValidRequest_ReturnsTransaction() {
         // Arrange
         when(transactionProcessorFactory.buildTransactionProcessor(TransactionType.TRANSFER))
@@ -108,8 +112,8 @@ class TransactionServiceImplTest {
 
         // Assert
         StepVerifier.create(response)
-                .expectNext(transaction) // Verifica que el valor emitido sea el esperado
-                .expectComplete() // Verifica que el Mono complete correctamente
+                .expectNext(transaction)
+                .expectComplete()
                 .verify();
 
         verify(transactionProcessorFactory, times(1)).buildTransactionProcessor(TransactionType.TRANSFER);
@@ -117,7 +121,9 @@ class TransactionServiceImplTest {
     }
 
     @Test
-    @DisplayName("getTransactionHistory_ReturnsListOfTransactions")
+    /*
+    * Verifies that retrieving the transaction history returns the expected list of transactions.
+    * */
     void getTransactionHistory_ReturnsListOfTransactions() {
         // Arrange
         List<Transaction> transactions = List.of(transaction);
@@ -128,8 +134,8 @@ class TransactionServiceImplTest {
 
         // Assert
         StepVerifier.create(response)
-                .expectNext(transactions) // Verifica que la lista emitida sea la esperada
-                .expectComplete() // Verifica que el Mono complete correctamente
+                .expectNext(transactions)
+                .expectComplete()
                 .verify();
 
         verify(transactionRepository, times(1)).findAll();

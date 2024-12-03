@@ -30,22 +30,21 @@ class AccountServiceClientTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        // Crear el servidor simulado
         mockWebServer = new MockWebServer();
         mockWebServer.start();
 
-        // Configurar WebClient para que apunte al MockWebServer
         WebClient webClient = WebClient.builder()
                 .baseUrl(mockWebServer.url("/").toString())
                 .build();
 
-        // Injectar WebClient en el servicio
         accountServiceClient = new AccountServiceClient(webClient, errorHandler, mockWebServer.url("/").toString());
     }
 
     @Test
+    /*
+    * Verifies that fetching a bank account by ID returns the correct account details.
+    * */
     void fetchBankAccountById_Success() {
-        // Respuesta simulada con datos de BankAccountDTO
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{ \"id\": 123, \"accountNumber\": \"987654321\", \"balance\": 1000.00, \"accountType\": \"SAVINGS\", \"customerId\": 456 }")
@@ -53,10 +52,8 @@ class AccountServiceClientTest {
 
         Integer accountId = 123;
 
-        // Actuar
         Mono<BankAccountDTO> result = accountServiceClient.fetchBankAccountById(accountId);
 
-        // Afirmar
         BankAccountDTO bankAccountDTO = result.block();
         assertNotNull(bankAccountDTO);
         assertEquals(accountId, bankAccountDTO.getId());
@@ -67,8 +64,10 @@ class AccountServiceClientTest {
     }
 
     @Test
+    /*
+    *   Verifies that adjusting the bank account balance successfully completes without errors.
+    * */
     void adjustBankAccountBalance_Success() {
-        // Respuesta exitosa de ajuste de saldo
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{ }")
@@ -77,18 +76,18 @@ class AccountServiceClientTest {
         Integer accountId = 123;
         BigDecimal newBalance = BigDecimal.valueOf(1500.00);
 
-        // Actuar
         Mono<Void> result = accountServiceClient.adjustBankAccountBalance(accountId, newBalance);
 
-        // Afirmar
         StepVerifier.create(result)
                 .expectComplete()
                 .verify();
     }
 
     @Test
+    /*
+    * Verifies that an error response during bank account balance adjustment throws an exception.
+    * */
     void adjustBankAccountBalance_Error() {
-        // Respuesta de error para ajuste de saldo
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(500)
                 .setBody("{ \"error\": \"Internal Server Error\" }")
@@ -97,16 +96,16 @@ class AccountServiceClientTest {
         Integer accountId = 123;
         BigDecimal newBalance = BigDecimal.valueOf(1500.00);
 
-        // Actuar
         Mono<Void> result = accountServiceClient.adjustBankAccountBalance(accountId, newBalance);
 
-        // Afirmar
         assertThrows(Exception.class, result::block);
     }
 
     @AfterEach
+    /*
+    *  Ensures the mock server is shut down after each test to clean up resources.
+    * */
     void tearDown() throws Exception {
-        // Cerrar el servidor simulado después de cada prueba
         mockWebServer.shutdown();
     }
 

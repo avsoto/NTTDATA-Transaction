@@ -45,6 +45,9 @@ class TransactionControllerTest {
     }
 
     @Test
+    /*
+    * Verifies that processing a deposit request returns the correct transaction with a 200 OK status.
+     * */
     void processDeposit_shouldReturnTransaction() {
         // Arrange
         DepositRequest depositRequest = new DepositRequest(1, BigDecimal.valueOf(1245.12));
@@ -71,6 +74,9 @@ class TransactionControllerTest {
 
 
     @Test
+    /*
+    *  Verifies that processing a withdrawal request returns the correct transaction with a 200 OK status.
+    * */
     void processWithdrawal_shouldReturnTransaction() {
         // Arrange
         WithdrawalRequest withdrawalRequest = new WithdrawalRequest(1, new BigDecimal("50"));
@@ -97,6 +103,9 @@ class TransactionControllerTest {
     }
 
     @Test
+    /*
+    * Verifies that processing a transfer request returns the correct transaction with a 200 OK status.
+    * */
     void processTransfer_shouldReturnTransaction() {
         // Arrange
         TransferRequest transferRequest = new TransferRequest(1, 2, new BigDecimal("50"));
@@ -123,6 +132,9 @@ class TransactionControllerTest {
     }
 
     @Test
+    /*
+    * Verifies that fetching the transaction history returns a list of transactions with a 200 OK status.
+    * */
     void getTransactionHistory_shouldReturnListOfTransactions() {
         // Arrange
         Transaction mockTransaction = Transaction.builder()

@@ -9,7 +9,6 @@ import com.bankingSystem.transaction.repository.TransactionRepository;
 import com.bankingSystem.transaction.service.AccountServiceClient;
 import com.bankingSystem.transaction.util.TransactionUtil;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -37,7 +36,9 @@ class TransactionProcessorFactoryTest {
     }
 
     @Test
-    @DisplayName("buildTransactionProcessor_SAVING_ReturnsDepositProcessor")
+    /*
+    * Verifies that when the transaction type is SAVING, the correct DepositProcessor is returned.
+    * */
     void buildTransactionProcessor_Deposit_ReturnsDepositProcessor() {
         // Arrange
         TransactionType type = TransactionType.SAVING;
@@ -50,7 +51,9 @@ class TransactionProcessorFactoryTest {
     }
 
     @Test
-    @DisplayName("buildTransactionProcessor_WITHDRAWAL_ReturnsWithdrawalProcessor")
+    /*
+    *   Verifies that when the transaction type is WITHDRAWAL, the correct WithdrawalProcessor is returned.
+    * */
     void buildTransactionProcessor_Withdrawal_ReturnsWithdrawalProcessor() {
         // Arrange
         TransactionType type = TransactionType.WITHDRAWAL;
@@ -63,7 +66,9 @@ class TransactionProcessorFactoryTest {
     }
 
     @Test
-    @DisplayName("buildTransactionProcessor_TRANSFER_ReturnsTransferProcessor")
+    /*
+    * Verifies that when the transaction type is TRANSFER, the correct TransferProcessor is returned.
+    * */
     void buildTransactionProcessor_Transfer_ReturnsTransferProcessor() {
         // Arrange
         TransactionType type = TransactionType.TRANSFER;

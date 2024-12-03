@@ -7,7 +7,6 @@ import com.bankingSystem.transaction.repository.TransactionRepository;
 import com.bankingSystem.transaction.service.AccountServiceClient;
 import com.bankingSystem.transaction.util.TransactionUtil;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -40,7 +39,9 @@ class WithdrawalProcessorTest {
     }
 
     @Test
-    @DisplayName("processTransaction should process withdrawal successfully")
+    /*
+    * Verifies that processing a successful withdrawal transaction updates the account balance and returns the correct transaction.
+    * */
     void processTransaction_SuccessfulWithdrawal_ReturnsTransaction() {
         // Arrange
         Integer accountId = 1;
@@ -73,16 +74,18 @@ class WithdrawalProcessorTest {
                     assertEquals("1", transaction.getOriginAccount());
                     return true;
                 })
-                .expectComplete() // Verifica que el Mono complete correctamente
+                .expectComplete()
                 .verify();
 
         verify(accountServiceClient, times(1)).fetchBankAccountById(accountId);
         verify(accountServiceClient, times(1)).adjustBankAccountBalance(accountId, account.getBalance().subtract(amount));
-        verify(transactionRepository, times(1)).save(any(Transaction.class));  // Ensure save was called once
+        verify(transactionRepository, times(1)).save(any(Transaction.class));
     }
 
     @Test
-    @DisplayName("processTransaction should return error Mono when insufficient balance")
+    /*
+    * Verifies that processing a withdrawal with insufficient balance returns an error Mono with an IllegalArgumentException.
+     * */
     void processTransaction_InsufficientBalance_ReturnsErrorMono() {
         // Arrange
         Integer accountId = 1;
@@ -99,11 +102,11 @@ class WithdrawalProcessorTest {
 
         // Assert
         StepVerifier.create(result)
-                .expectError(IllegalArgumentException.class) // Verifica que el error esperado sea lanzado
+                .expectError(IllegalArgumentException.class)
                 .verify();
 
         verify(accountServiceClient, times(1)).fetchBankAccountById(accountId);
-        verify(accountServiceClient, times(0)).adjustBankAccountBalance(any(), any());  // No balance adjustment should happen
-        verify(transactionRepository, times(0)).save(any());  // No transaction should be saved
+        verify(accountServiceClient, times(0)).adjustBankAccountBalance(any(), any());
+        verify(transactionRepository, times(0)).save(any());
     }
 }

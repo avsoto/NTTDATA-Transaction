@@ -7,14 +7,15 @@ import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class TransactionUtilTest {
 
     @InjectMocks
     private final TransactionUtil transactionUtil = new TransactionUtil();
 
     @Test
+    /*
+    * Verifies that validating an amount greater than zero completes successfully without errors.
+    * */
     void validateAmount_AmountGreaterThanZero_CompletesSuccessfully() {
         // Arrange
         BigDecimal amount = BigDecimal.valueOf(100);
@@ -28,6 +29,9 @@ class TransactionUtilTest {
     }
 
     @Test
+    /*
+    * Verifies that validating an amount equal to zero throws an IllegalArgumentException with the appropriate error message.
+    * */
     void validateAmount_AmountEqualToZero_ThrowsIllegalArgumentException() {
         // Arrange
         BigDecimal amount = BigDecimal.ZERO;
@@ -43,6 +47,9 @@ class TransactionUtilTest {
     }
 
     @Test
+    /*
+    * Verifies that validating an amount less than zero throws an IllegalArgumentException with the appropriate error message.
+    * */
     void validateAmount_AmountLessThanZero_ThrowsIllegalArgumentException() {
         // Arrange
         BigDecimal amount = BigDecimal.valueOf(-10);

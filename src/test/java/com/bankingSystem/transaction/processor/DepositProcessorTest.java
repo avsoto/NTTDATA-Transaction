@@ -10,9 +10,6 @@ import org.mockito.*;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 class DepositProcessorTest {
 
     @Mock

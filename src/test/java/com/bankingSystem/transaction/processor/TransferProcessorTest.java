@@ -17,8 +17,6 @@ import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 import static org.mockito.Mockito.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class TransferProcessorTest {
 
     @Mock
@@ -39,6 +37,9 @@ class TransferProcessorTest {
     }
 
     @Test
+    /*
+    * Verifies that processing a transfer successfully updates the accounts and returns a transaction.
+    * */
     void testProcessTransfer_Success() {
         // Arrange
         Integer sourceAccountId = 1;
@@ -59,8 +60,8 @@ class TransferProcessorTest {
 
         // Assert
         StepVerifier.create(result)
-                .expectNextCount(1) // Verifica que se emita una transacción (1 elemento)
-                .expectComplete()   // Verifica que el flujo se complete correctamente
+                .expectNextCount(1)
+                .expectComplete()
                 .verify();
 
         verify(accountServiceClient, times(1)).fetchBankAccountById(sourceAccountId);
@@ -70,6 +71,9 @@ class TransferProcessorTest {
     }
 
     @Test
+    /*
+    * Verifies that processing a transfer with insufficient balance results in an InsufficientBalanceException.
+    * */
     void testProcessTransfer_InsufficientBalance() {
         // Arrange
         Integer sourceAccountId = 1;
@@ -93,6 +97,9 @@ class TransferProcessorTest {
     }
 
     @Test
+    /*
+    *   Verifies that an invalid (negative) transfer amount results in an IllegalArgumentException.
+    * */
     void testValidateTransferAmount_Failure() {
         // Arrange
         BigDecimal invalidAmount = new BigDecimal("-100");
@@ -101,7 +108,7 @@ class TransferProcessorTest {
 
         // Act & Assert
         StepVerifier.create(transferProcessor.validateTransferAmount(invalidAmount))
-                .expectError(IllegalArgumentException.class)  // Verificamos que el error sea de tipo IllegalArgumentException
+                .expectError(IllegalArgumentException.class)
                 .verify();
     }
 
